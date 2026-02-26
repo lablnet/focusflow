@@ -12,13 +12,13 @@ export const baseRepository = <T extends AnyPgTable>(table: T) => {
     const columns = getTableColumns(table);
     const hasDeletedAt = 'deletedAt' in columns;
 
-    return {
-        ...db,
+    const repoMethods = {
         /**
          * Select a single record, automatically filtering out soft-deleted ones if enabled.
          */
-        findFirst: async (whereCondition?: SQL): Promise<any> => {
+        findFirst: async (whereCondition?: SQL, options: { db?: any } = {}): Promise<any> => {
             let finalCondition = whereCondition;
+            const targetDb = options.db || db;
 
             if (isSoftDeleteEnabled && hasDeletedAt) {
                 const deletedAtCol = (columns as Record<string, AnyPgColumn>).deletedAt;
@@ -26,7 +26,7 @@ export const baseRepository = <T extends AnyPgTable>(table: T) => {
                 finalCondition = whereCondition ? and(notDeleted, whereCondition) : notDeleted;
             }
 
-            const query = db.select().from(table as any);
+            const query = targetDb.select().from(table as any);
             const result = finalCondition ? await query.where(finalCondition).limit(1) : await query.limit(1);
             return (result as any[])[0];
         },
@@ -34,8 +34,9 @@ export const baseRepository = <T extends AnyPgTable>(table: T) => {
         /**
          * Select records, automatically filtering out soft-deleted ones if enabled.
          */
-        findMany: async (whereCondition?: SQL, customDb: any = db): Promise<any[]> => {
+        findMany: async (whereCondition?: SQL, options: { db?: any } = {}): Promise<any[]> => {
             let finalCondition = whereCondition;
+            const targetDb = options.db || db;
 
             if (isSoftDeleteEnabled && hasDeletedAt) {
                 const deletedAtCol = (columns as Record<string, AnyPgColumn>).deletedAt;
@@ -43,49 +44,54 @@ export const baseRepository = <T extends AnyPgTable>(table: T) => {
                 finalCondition = whereCondition ? and(notDeleted, whereCondition) : notDeleted;
             }
 
-            const query = customDb.select().from(table as any);
+            const query = targetDb.select().from(table as any);
             return (finalCondition ? await query.where(finalCondition) : await query) as any[];
         },
 
         /**
-         * Insert a new record into the table. Accepts raw `tx` context optionally for transactions.
+         * Insert a new record into the table.
          */
-        insert: async (data: any, customDb: any = db): Promise<any[]> => {
-            return (await customDb.insert(table as any).values(data).returning()) as any[];
+        insert: async (data: any, options: { db?: any } = {}): Promise<any[]> => {
+            const targetDb = options.db || db;
+            return (await targetDb.insert(table as any).values(data).returning()) as any[];
         },
 
         /**
          * Update existing records matching the condition.
-         * Note: Doesn't strictly filter soft-deleted ones out unless whereCondition specifically targets active only.
          */
-        update: async (data: any, whereCondition: SQL, customDb: any = db): Promise<any[]> => {
-            return (await customDb.update(table as any).set(data).where(whereCondition).returning()) as any[];
+        update: async (data: any, whereCondition: SQL, options: { db?: any } = {}): Promise<any[]> => {
+            const targetDb = options.db || db;
+            return (await targetDb.update(table as any).set(data).where(whereCondition).returning()) as any[];
         },
 
         /**
-         * Delete records, automatically converting into soft-deletes if enabled.
+         * Delete records. Converts to soft-delete if enabled and options.force is false.
          */
-        delete: async (whereCondition: SQL, customDb: any = db): Promise<any> => {
-            if (isSoftDeleteEnabled && hasDeletedAt) {
+        delete: async (whereCondition: SQL, options: { db?: any, force?: boolean } = {}): Promise<any> => {
+            const targetDb = options.db || db;
+            if (!options.force && isSoftDeleteEnabled && hasDeletedAt) {
                 const updateData = { deletedAt: new Date() } as unknown as PgUpdateSetSource<T>;
-                return await customDb.update(table as any).set(updateData).where(whereCondition);
+                return await targetDb.update(table as any).set(updateData).where(whereCondition);
             }
-            return await customDb.delete(table as any).where(whereCondition);
+            return await targetDb.delete(table as any).where(whereCondition);
         },
 
         /**
          * Get all records including deleted ones (ignores the soft-delete global flag)
          */
-        findWithDeleted: async (whereCondition?: SQL, customDb: any = db): Promise<any[]> => {
-            const query = customDb.select().from(table as any);
+        findWithDeleted: async (whereCondition?: SQL, options: { db?: any } = {}): Promise<any[]> => {
+            const targetDb = options.db || db;
+            const query = targetDb.select().from(table as any);
             return (whereCondition ? await query.where(whereCondition) : await query) as any[];
         },
-
-        /**
-         * Directly expose the transaction wrapper from Drizzle to allow multi-step repository workflows.
-         */
-        transaction: async <Result>(fn: (tx: any) => Promise<Result>): Promise<Result> => {
-            return await db.transaction(fn);
-        }
     };
+
+    return new Proxy(db, {
+        get(target, prop, receiver) {
+            if (prop in repoMethods) {
+                return repoMethods[prop as keyof typeof repoMethods];
+            }
+            return Reflect.get(target, prop, receiver);
+        }
+    }) as any;
 };

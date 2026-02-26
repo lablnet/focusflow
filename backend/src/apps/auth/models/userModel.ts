@@ -15,16 +15,16 @@ export const findUserById = async (id: number) => {
 };
 
 export const registerUserWithCompany = async (companyName: string, name: string, email: string, passwordHash: string) => {
-    return await usersRepo.transaction(async (tx) => {
-        const [company] = await companiesRepo.insert({ name: companyName }, tx);
+    return await usersRepo.transaction(async (tx: any) => {
+        const [company] = await companiesRepo.insert({ name: companyName }, { db: tx });
         const [user] = await usersRepo.insert({
             companyId: company.id,
             name,
             email,
             passwordHash,
             role: 'admin'
-        }, tx);
-        await userSettingsRepo.insert({ userId: user.id }, tx);
+        }, { db: tx });
+        await userSettingsRepo.insert({ userId: user.id }, { db: tx });
         return { company, user };
     });
 };
