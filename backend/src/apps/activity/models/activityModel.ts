@@ -1,11 +1,17 @@
 import { db } from '../../../db';
 import { activityLogsTable, usersTable, userSettingsTable, companySettingsTable } from '../../../db/schema';
 import { eq, and, gte, desc } from 'drizzle-orm';
+import { baseRepository } from '../../../db/repository';
+
+const usersRepo = baseRepository(usersTable);
+const userSettingsRepo = baseRepository(userSettingsTable);
+const companySettingsRepo = baseRepository(companySettingsTable);
+const activityRepo = baseRepository(activityLogsTable);
 
 export const getTrackingLimits = async (userId: number) => {
-    const [userDb] = await db.select({ companyId: usersTable.companyId }).from(usersTable).where(eq(usersTable.id, userId));
-    const [userSet] = await db.select().from(userSettingsTable).where(eq(userSettingsTable.userId, userId));
-    const [compSet] = await db.select().from(companySettingsTable).where(eq(companySettingsTable.companyId, userDb.companyId));
+    const [userDb] = await usersRepo.findMany(eq(usersTable.id, userId));
+    const [userSet] = await userSettingsRepo.findMany(eq(userSettingsTable.userId, userId));
+    const [compSet] = await companySettingsRepo.findMany(eq(companySettingsTable.companyId, userDb?.companyId ?? 0));
 
     return userSet?.maxDailyMinutes ?? compSet?.defaultMaxDailyMinutes ?? null;
 };
@@ -14,14 +20,12 @@ export const getEstimatedMinutesToday = async (userId: number) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const todaysLogs = await db.select({ id: activityLogsTable.id })
-        .from(activityLogsTable)
-        .where(
-            and(
-                eq(activityLogsTable.userId, userId),
-                gte(activityLogsTable.createdAt, today)
-            )
-        );
+    const todaysLogs = await activityRepo.findMany(
+        and(
+            eq(activityLogsTable.userId, userId),
+            gte(activityLogsTable.createdAt, today)
+        )
+    );
     return todaysLogs.length * 3.33; // 3 snaps per 10 mins = ~3.33 mins per log
 };
 

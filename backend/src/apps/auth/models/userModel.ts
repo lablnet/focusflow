@@ -1,36 +1,30 @@
-import { db } from '../../../db';
-import { usersTable, companiesTable, userSettingsTable } from '../../../db/schema';
+import { companiesTable, usersTable, userSettingsTable } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
+import { baseRepository } from '../../../db/repository';
+
+const usersRepo = baseRepository(usersTable);
+const companiesRepo = baseRepository(companiesTable);
+const userSettingsRepo = baseRepository(userSettingsTable);
 
 export const findUserByEmail = async (email: string) => {
-    const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email));
-    return user;
+    return await usersRepo.findFirst(eq(usersTable.email, email));
 };
 
 export const findUserById = async (id: number) => {
-    const [user] = await db.select({
-        id: usersTable.id,
-        name: usersTable.name,
-        email: usersTable.email,
-        role: usersTable.role,
-        companyId: usersTable.companyId,
-        teamId: usersTable.teamId,
-        createdAt: usersTable.createdAt
-    }).from(usersTable).where(eq(usersTable.id, id));
-    return user;
+    return await usersRepo.findFirst(eq(usersTable.id, id));
 };
 
 export const registerUserWithCompany = async (companyName: string, name: string, email: string, passwordHash: string) => {
-    return await db.transaction(async (tx) => {
-        const [company] = await tx.insert(companiesTable).values({ name: companyName }).returning({ id: companiesTable.id });
-        const [user] = await tx.insert(usersTable).values({
+    return await usersRepo.transaction(async (tx) => {
+        const [company] = await companiesRepo.insert({ name: companyName }, tx);
+        const [user] = await usersRepo.insert({
             companyId: company.id,
             name,
             email,
             passwordHash,
             role: 'admin'
-        }).returning({ id: usersTable.id });
-        await tx.insert(userSettingsTable).values({ userId: user.id });
+        }, tx);
+        await userSettingsRepo.insert({ userId: user.id }, tx);
         return { company, user };
     });
 };
