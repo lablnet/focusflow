@@ -13,6 +13,7 @@ export const baseRepository = <T extends AnyPgTable>(table: T) => {
     const hasDeletedAt = 'deletedAt' in columns;
 
     return {
+        ...db,
         /**
          * Select a single record, automatically filtering out soft-deleted ones if enabled.
          */
