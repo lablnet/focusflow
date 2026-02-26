@@ -8,6 +8,13 @@
       "when": 1772102276805,
       "tag": "0000_dazzling_jean_grey",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1772105908890,
+      "tag": "0001_serious_shiver_man",
+      "breakpoints": true
     }
   ]
 }

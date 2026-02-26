@@ -7,6 +7,11 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import errorHandler from './middleware/errorHandler';
 
+import { setupSwagger } from './swagger';
+import authRoutes from './apps/auth/routes/authRoutes';
+import activityRoutes from './apps/activity/routes/activityRoutes';
+import uploadRoutes from './apps/upload/routes/uploadRoutes';
+
 const app: Application = express();
 const port = process.env.PORT || 8000;
 
@@ -29,6 +34,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(cookieParser());
+app.use(express.json());
 
 // index route
 app.get('/', (_, res) => {
@@ -38,6 +44,12 @@ app.get('/', (_, res) => {
 app.get('/health', (_, res) => {
   res.send('OK');
 });
+
+// Setup specialized routes
+setupSwagger(app);
+app.use('/api/auth', authRoutes);
+app.use('/api/activity', activityRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Global Error Handler
 app.use(errorHandler);
