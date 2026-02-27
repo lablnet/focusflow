@@ -1,5 +1,5 @@
-import Card from '../components/Card';
 import { Users as UsersIcon, UserPlus, MoreVertical, Mail, Shield, ChevronRight } from 'lucide-react';
+import { Card } from '@focusflow/ui';
 import { motion } from 'framer-motion';
 
 const Teams = () => {

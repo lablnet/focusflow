@@ -30,7 +30,9 @@
     "lucide-react": "^0.562.0",
     "screenshot-desktop": "^1.15.3",
     "tailwind-merge": "^3.4.0",
-    "uiohook-napi": "^1.5.4"
+    "uiohook-napi": "^1.5.4",
+    "@focusflow/types": "workspace:*",
+    "@focusflow/ui": "workspace:*"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",

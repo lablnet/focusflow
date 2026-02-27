@@ -1,4 +1,4 @@
-import Card from '../components/Card';
+import { Card } from '@focusflow/ui';
 import { Users, Clock, Activity, TrendingUp, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 

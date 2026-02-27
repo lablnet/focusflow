@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Card from '../components/Card';
+import { Card } from '@focusflow/ui';
 import { Shield, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { authService } from '../services/authService';

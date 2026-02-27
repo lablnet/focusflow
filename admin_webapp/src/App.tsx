@@ -21,19 +21,19 @@ const App = () => {
         <Route
           path="/*"
           element={
-            isAuthenticated ? (
-              <MainLayout>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/teams" element={<Teams />} />
-                  <Route path="/logs" element={<Logs />} />
-                  <Route path="/settings" element={<div className="text-white p-8">Settings Coming Soon</div>} />
-                  <Route path="*" element={<Navigate to="/" />} />
-                </Routes>
-              </MainLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
+            // isAuthenticated ? (
+            <MainLayout>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/teams" element={<Teams />} />
+                <Route path="/logs" element={<Logs />} />
+                <Route path="/settings" element={<div className="text-white p-8">Settings Coming Soon</div>} />
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
+            </MainLayout>
+            // ) : (
+            //   <Navigate to="/login" />
+            // )
           }
         />
       </Routes>

@@ -1,0 +1,4 @@
+packages:
+  - 'admin_webapp'
+  - 'desktop_app'
+  - 'packages/*'

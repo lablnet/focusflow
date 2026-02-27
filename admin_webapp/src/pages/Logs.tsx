@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Card from '../components/Card';
+import { Card } from '@focusflow/ui';
 import { Search, Filter, Calendar, Users as UsersIcon, Download, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 
