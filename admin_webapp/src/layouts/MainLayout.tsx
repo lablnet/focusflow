@@ -32,14 +32,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                             <Bell className="w-5 h-5" />
                             <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-slate-950" />
                         </button>
-                        <div className="h-8 w-px bg-white/10" />
+                        <div className="h-8 w-px bg-border" />
                         <div className="flex items-center gap-3 cursor-pointer group">
                             <div className="text-right">
-                                <p className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors">{user?.name || 'Admin User'}</p>
-                                <p className="text-xs text-slate-400 uppercase tracking-widest">{user?.role || 'Administrator'}</p>
+                                <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{user?.name || 'Admin User'}</p>
+                                <p className="text-xs text-muted-foreground uppercase tracking-widest">{user?.role || 'Administrator'}</p>
                             </div>
-                            <div className="w-10 h-10 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center group-hover:border-indigo-500/50 transition-all">
-                                <UserIcon className="w-5 h-5 text-indigo-400" />
+                            <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center group-hover:border-primary/50 transition-all">
+                                <UserIcon className="w-5 h-5 text-primary" />
                             </div>
                         </div>
                     </div>
