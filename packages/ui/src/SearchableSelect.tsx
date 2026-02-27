@@ -42,10 +42,11 @@ export function SearchableSelect({ options, value, onChange, placeholder = "Sele
             <button
                 type="button"
                 className={cn(
-                    "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors",
+                    "h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors",
                     "hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1",
                     open && "ring-2 ring-ring ring-offset-1"
                 )}
+                style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
                 onClick={() => {
                     setOpen(!open);
                     if (!open) {
@@ -56,23 +57,37 @@ export function SearchableSelect({ options, value, onChange, placeholder = "Sele
                 <span className={cn("truncate text-left", !selectedOption && "text-muted-foreground")}>
                     {selectedOption ? selectedOption.label : placeholder}
                 </span>
-                <ChevronDown className={cn("h-4 w-4 text-muted-foreground ml-2 shrink-0 transition-transform duration-200", open && "rotate-180")} />
+                <ChevronDown
+                    className="h-4 w-4 text-muted-foreground"
+                    style={{
+                        marginLeft: "0.5rem",
+                        flexShrink: 0,
+                        transition: "transform 200ms",
+                        transform: open ? "rotate(180deg)" : "rotate(0deg)",
+                    }}
+                />
             </button>
 
             {open && (
-                <div className="absolute z-50 mt-1.5 w-full overflow-hidden rounded-xl border border-border/60 bg-popover text-popover-foreground shadow-lg shadow-black/[0.08] animate-in fade-in-0 zoom-in-95 duration-150">
-                    <div className="flex items-center border-b border-border/60 px-3 py-2">
-                        <Search className="mr-2 h-4 w-4 shrink-0 text-muted-foreground/60" />
+                <div
+                    className="absolute z-50 w-full overflow-hidden rounded-xl border border-border/60 bg-popover text-popover-foreground"
+                    style={{ marginTop: "6px", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}
+                >
+                    <div
+                        className="border-b border-border/60 px-3 py-2"
+                        style={{ display: "flex", alignItems: "center" }}
+                    >
+                        <Search className="h-4 w-4 text-muted-foreground/60" style={{ marginRight: "0.5rem", flexShrink: 0 }} />
                         <input
                             ref={inputRef}
-                            className="flex h-full w-full bg-transparent py-1 text-sm outline-none placeholder:text-muted-foreground/60"
+                            className="w-full bg-transparent py-1 text-sm outline-none placeholder:text-muted-foreground/60"
                             placeholder="Search…"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onClick={(e) => e.stopPropagation()}
                         />
                     </div>
-                    <div className="max-h-52 overflow-y-auto p-1">
+                    <div style={{ maxHeight: "13rem", overflowY: "auto", padding: "4px" }}>
                         {filteredOptions.length === 0 ? (
                             <div className="py-6 text-center text-sm text-muted-foreground/60">No results found.</div>
                         ) : (
@@ -80,10 +95,11 @@ export function SearchableSelect({ options, value, onChange, placeholder = "Sele
                                 <div
                                     key={opt.value}
                                     className={cn(
-                                        "relative flex cursor-pointer select-none items-center rounded-lg px-2.5 py-2 text-sm transition-colors",
+                                        "rounded-lg px-2.5 py-2 text-sm cursor-pointer transition-colors",
                                         "hover:bg-accent/60",
                                         value === opt.value && "bg-accent text-accent-foreground font-medium"
                                     )}
+                                    style={{ display: "flex", alignItems: "center", userSelect: "none" }}
                                     onClick={() => {
                                         onChange(opt.value);
                                         setOpen(false);
@@ -91,9 +107,9 @@ export function SearchableSelect({ options, value, onChange, placeholder = "Sele
                                     }}
                                 >
                                     {value === opt.value ? (
-                                        <Check className="mr-2 h-4 w-4 shrink-0 text-primary" />
+                                        <Check className="h-4 w-4 text-primary" style={{ marginRight: "0.5rem", flexShrink: 0 }} />
                                     ) : (
-                                        <span className="mr-2 h-4 w-4 shrink-0 inline-block" />
+                                        <span style={{ width: "1rem", height: "1rem", marginRight: "0.5rem", flexShrink: 0, display: "inline-block" }} />
                                     )}
                                     {opt.label}
                                 </div>
