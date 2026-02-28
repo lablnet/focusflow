@@ -1,2 +1,24 @@
-@import "tailwindcss";
 @import "../../../../../packages/ui/src/styles.css";
+
+/* Desktop-specific overrides */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+}
+
+/* Electron drag region */
+.drag-region {
+    -webkit-app-region: drag;
+}
+.no-drag {
+    -webkit-app-region: no-drag;
+}

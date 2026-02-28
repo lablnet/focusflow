@@ -1,5 +1,12 @@
 /// <reference types="vite/client" />
 
+interface ManualLogEntry {
+  date: string;
+  hours: number;
+  memo: string;
+  category: string;
+}
+
 interface Window {
   api: {
     tracker: {
@@ -22,6 +29,7 @@ interface Window {
       onDistraction: (callback: (data: { app: string, title: string }) => void) => () => void;
       onBlockerData: (callback: (data: { app: string, title: string }) => void) => () => void;
       hideBlocker: () => void;
+      addManualLog: (entry: ManualLogEntry) => Promise<boolean>;
     };
   };
 }
