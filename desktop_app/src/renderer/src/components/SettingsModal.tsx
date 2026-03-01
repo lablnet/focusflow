@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash } from 'lucide-react';
+import { Plus, Trash, Settings2 } from 'lucide-react';
 import { Modal, Input } from '@focusflow/ui';
 import type { User } from 'firebase/auth';
 
@@ -32,7 +32,16 @@ export default function SettingsModal({
 
     return (
         <Modal open={open} onClose={onClose} size="max-w-sm">
-            <h2 className="text-lg font-bold mb-5 text-foreground">Settings</h2>
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-5">
+                <div className="p-2 bg-secondary rounded-lg shrink-0">
+                    <Settings2 className="w-4 h-4 text-foreground" />
+                </div>
+                <div>
+                    <h2 className="text-lg font-bold text-foreground leading-tight">Settings</h2>
+                    <p className="text-[11px] text-muted-foreground">Manage your preferences</p>
+                </div>
+            </div>
 
             <div className="space-y-5">
                 {/* Distraction Blocker */}

@@ -38,19 +38,20 @@ export function Modal({ open, onClose, children, className, size = "max-w-md", s
                 if (e.target === e.currentTarget) onClose();
             }}
         >
-            {/* Solid backdrop — inline style guarantees opacity */}
+            {/* Solid backdrop — pointer-events none so clicks fall through to parent's onClose handler */}
             <div
                 style={{
                     position: 'absolute',
                     inset: 0,
                     backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                    pointerEvents: 'none',
                 }}
             />
 
             {/* Modal card */}
             <div
                 className={cn(
-                    "relative w-full bg-card text-card-foreground rounded-xl overflow-hidden",
+                    "relative w-full bg-card text-card-foreground rounded-xl",
                     size,
                     className
                 )}
@@ -61,6 +62,7 @@ export function Modal({ open, onClose, children, className, size = "max-w-md", s
                     display: 'flex',
                     flexDirection: 'column',
                 }}
+                onClick={(e) => e.stopPropagation()}
             >
                 {/* Header bar with close button */}
                 {showClose && (
@@ -85,7 +87,7 @@ export function Modal({ open, onClose, children, className, size = "max-w-md", s
                 {/* Scrollable content */}
                 <div
                     style={{
-                        padding: '0 24px 24px 24px',
+                        padding: showClose ? '4px 24px 24px 24px' : '24px 24px 24px 24px',
                         overflowY: 'auto',
                         flex: 1,
                     }}

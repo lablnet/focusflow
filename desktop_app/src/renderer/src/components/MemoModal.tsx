@@ -1,3 +1,4 @@
+import { MessageSquare } from 'lucide-react';
 import { Modal, Textarea } from '@focusflow/ui';
 
 interface MemoModalProps {
@@ -10,8 +11,16 @@ interface MemoModalProps {
 export default function MemoModal({ open, onClose, memo, onMemoChange }: MemoModalProps) {
     return (
         <Modal open={open} onClose={onClose} size="max-w-sm">
-            <h2 className="text-lg font-bold mb-1 text-foreground">Update Memo</h2>
-            <p className="text-muted-foreground text-xs mb-4">Tell us what you are working on right now.</p>
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-5">
+                <div className="p-2 bg-primary/10 rounded-lg shrink-0">
+                    <MessageSquare className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                    <h2 className="text-lg font-bold text-foreground leading-tight">Update Memo</h2>
+                    <p className="text-[11px] text-muted-foreground">Tell us what you are working on right now.</p>
+                </div>
+            </div>
 
             <Textarea
                 value={memo}
