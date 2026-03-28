@@ -50,35 +50,7 @@ function createWindow(): BrowserWindow {
     mainWindow.show()
   })
 
-  // Allow Firebase Auth popups to stay within the app
   mainWindow.webContents.setWindowOpenHandler((details) => {
-    console.log('Main Process: Request to open window:', details.url);
-    
-    // Check for Firebase Auth handler or Google OAuth domains
-    const url = details.url.toLowerCase();
-    const isStorage = url.includes('firebasestorage.googleapis.com');
-    const isAuthBase = url.includes('firebaseapp.com') || url.includes('google.com') || url.includes('googleapis.com');
-    
-    const isAuthUrl = isAuthBase && !isStorage;
-
-    if (isAuthUrl) {
-      console.log('Main Process: Allowing Auth Popup window');
-      return { 
-        action: 'allow',
-        overrideBrowserWindowOptions: {
-          width: 600,
-          height: 800,
-          autoHideMenuBar: true,
-          webPreferences: {
-            nodeIntegration: false,
-            contextIsolation: true,
-            sandbox: false
-          }
-        }
-      }
-    }
-    
-    console.log('Main Process: Denying window and opening externally');
     shell.openExternal(details.url)
     return { action: 'deny' }
   })
@@ -130,7 +102,7 @@ function createBlockerWindow() {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   console.log('Main Process: app.whenReady() triggered');
-  console.log('Main Process: Env Key Check:', !!process.env.VITE_FIREBASE_API_KEY);
+  console.log('Main Process: Env API Configured:', !!process.env.VITE_API_URL);
 
   // Register media protocol for local snapshots
   protocol.handle('media', (request) => {

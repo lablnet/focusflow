@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
 // To be updated with real endpoint
-const BASE_URL = import.meta.env?.VITE_API_URL || 'http://localhost:8000/api';
+const BASE_URL = import.meta.env?.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
 export const createClient = (getToken: () => string | null): AxiosInstance => {
     const client = axios.create({

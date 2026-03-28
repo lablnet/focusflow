@@ -33,4 +33,9 @@ export const authActions = (client: AxiosInstance) => ({
         });
         return data;
     },
+
+    getMe: async (): Promise<User> => {
+        const { data } = await client.get<{ data: User }>('/auth/me');
+        return data.data;
+    },
 });

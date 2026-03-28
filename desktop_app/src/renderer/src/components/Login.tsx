@@ -19,7 +19,12 @@ const Login: React.FC = () => {
         await login(email, password);
       }
     } catch (error: any) {
-      alert(`Error: ${error.message}`);
+      console.dir(error);
+      let backendError = error.response?.data?.error || error.response?.data?.message || error.message;
+      if (!backendError && error.response?.data?.errors?.length) {
+        backendError = error.response.data.errors.map((e: any) => e.msg).join(', ');
+      }
+      alert(`Error: ${backendError}`);
     }
   };
 

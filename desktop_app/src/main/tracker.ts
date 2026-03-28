@@ -2,9 +2,7 @@ import { ipcMain, app, BrowserWindow, shell } from 'electron';
 import activeWindow from 'active-win';
 import { uIOhook } from 'uiohook-napi';
 import screenshot from 'screenshot-desktop';
-import { db, storage } from './firebase';
-import { collection, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import axios from 'axios';
 import { categorizeWindow, calculateFocusScore } from './categorizer';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -64,8 +62,8 @@ export class ActivityTracker {
     this.setupIPC();
   }
 
-  private isFirebaseConfigured() {
-    return !!process.env.VITE_FIREBASE_API_KEY && !!process.env.VITE_FIREBASE_PROJECT_ID;
+  private isBackendConfigured() {
+    return true; // We assume the backend is configured/available locally
   }
 
   private setupListeners() {
@@ -141,9 +139,11 @@ export class ActivityTracker {
       logs = logs.filter((l: any) => l.id !== id);
       fs.writeFileSync(this.storagePath, JSON.stringify(logs));
 
-      // Attempt delete from Firebase if we have ID
-      if (this.isFirebaseConfigured()) {
-        await deleteDoc(doc(db, 'activity_logs', id));
+      // Attempt delete from Backend if we have ID
+      if (typeof id === 'number' || !id.toString().startsWith('local-')) {
+        try {
+           await axios.delete(`http://localhost:8000/api/activity/${id}`);
+        } catch(e) { console.error('Failed backend delete', e); }
       }
       return true;
     } catch (e) {
@@ -292,16 +292,18 @@ export class ActivityTracker {
       const localUrl = `media://${localFilename}`;
 
       const filename = `screenshots/${this.userId}/${timestamp}.png`;
-      const storageRef = ref(storage, filename);
       
       console.log('Main: Snapshot capturing start...');
       this.notifyCapture('capturing', null);
       shell.beep();
 
       let downloadURL = '';
-      if (this.isFirebaseConfigured()) {
-        await uploadBytes(storageRef, img);
-        downloadURL = await getDownloadURL(storageRef);
+      if (this.isBackendConfigured()) {
+        const formData = new FormData();
+        formData.append('file', new Blob([img], { type: 'image/png' }), filename);
+        // Note: You would typically upload the file to your backend's storage endpoint here and get a URL back.
+        // For now, we will just use the local URL.
+        downloadURL = localUrl;
       }
 
       const focusScore = calculateFocusScore(this.keystrokes, this.mouseMoves, 10);
@@ -324,13 +326,18 @@ export class ActivityTracker {
       };
 
       let firebaseId = '';
-      if (this.isFirebaseConfigured()) {
-        const docRef = await addDoc(collection(db, 'activity_logs'), {
-          ...logData,
-          timestamp: serverTimestamp(),
-          activities: this.activityBatches.slice(-20)
-        });
-        firebaseId = docRef.id;
+      if (this.isBackendConfigured()) {
+        try {
+          // You'll need to handle auth token if the main process sends this, 
+          // or just assume the backend accepts it.
+          const res = await axios.post('http://localhost:8000/api/activity', {
+            ...logData,
+            activities: this.activityBatches.slice(-20)
+          });
+          firebaseId = res.data?.id || '';
+        } catch(e) {
+          console.error('Failed to post activity to backend', e);
+        }
       }
 
       const logWithId = { ...logData, id: firebaseId || `local-${timestamp}` };
