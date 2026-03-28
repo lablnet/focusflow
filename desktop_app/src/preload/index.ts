@@ -4,7 +4,7 @@ import { electronAPI } from '@electron-toolkit/preload'
 // Custom APIs for renderer
 const api = {
   tracker: {
-    start: (data: { userId: string }) => electronAPI.ipcRenderer.invoke('tracker:start', data),
+    start: (data: { userId: string, token: string }) => electronAPI.ipcRenderer.invoke('tracker:start', data),
     stop: () => electronAPI.ipcRenderer.invoke('tracker:stop'),
     getStatus: () => electronAPI.ipcRenderer.invoke('tracker:status'),
     getLogs: () => electronAPI.ipcRenderer.invoke('tracker:get-logs'),
@@ -27,7 +27,8 @@ const api = {
       electronAPI.ipcRenderer.on('blocker:data', subscription);
       return () => electronAPI.ipcRenderer.removeListener('blocker:data', subscription);
     },
-    hideBlocker: () => electronAPI.ipcRenderer.send('blocker:hide')
+    hideBlocker: () => electronAPI.ipcRenderer.send('blocker:hide'),
+    setToken: (token: string) => electronAPI.ipcRenderer.send('tracker:set-token', { token })
   }
 }
 

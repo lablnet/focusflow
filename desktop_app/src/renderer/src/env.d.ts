@@ -30,6 +30,7 @@ interface Window {
       onBlockerData: (callback: (data: { app: string, title: string }) => void) => () => void;
       hideBlocker: () => void;
       addManualLog: (entry: ManualLogEntry) => Promise<boolean>;
+      setToken: (token: string) => void;
     };
   };
 }

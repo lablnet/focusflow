@@ -2,7 +2,7 @@ import { ipcMain, app, BrowserWindow, shell } from 'electron';
 import activeWindow from 'active-win';
 import { uIOhook } from 'uiohook-napi';
 import screenshot from 'screenshot-desktop';
-import axios from 'axios';
+import { api, activityActions, uploadActions } from '@focusflow/api';
 import { categorizeWindow, calculateFocusScore } from './categorizer';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -18,6 +18,7 @@ export class ActivityTracker {
   private minuteTimer: NodeJS.Timeout | null = null;
   private isRunning = false;
   private userId = '';
+  private token = '';
   private currentApp = '';
   private activityBatches: any[] = [];
   private minuteStats: { timestamp: number, keys: number, mouse: number }[] = [];
@@ -62,9 +63,6 @@ export class ActivityTracker {
     this.setupIPC();
   }
 
-  private isBackendConfigured() {
-    return true; // We assume the backend is configured/available locally
-  }
 
   private setupListeners() {
     if (this.uiohookInitialized) return;
@@ -89,6 +87,14 @@ export class ActivityTracker {
 
   private setupIPC() {
     ipcMain.handle('tracker:start', (_, { userId }: { userId: string }) => this.start(userId));
+    ipcMain.on('tracker:set-token', (_, { token }: { token: string }) => {
+      this.token = token;
+      if (token) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      } else {
+        delete api.defaults.headers.common['Authorization'];
+      }
+    });
     ipcMain.handle('tracker:stop', () => this.stop());
     ipcMain.handle('tracker:status', () => ({
       isRunning: this.isRunning,
@@ -142,7 +148,10 @@ export class ActivityTracker {
       // Attempt delete from Backend if we have ID
       if (typeof id === 'number' || !id.toString().startsWith('local-')) {
         try {
-           await axios.delete(`http://localhost:8000/api/activity/${id}`);
+          if (this.token) {
+            // Already set on api defaults by sync
+            await api.delete(`/activity/${id}`);
+          }
         } catch(e) { console.error('Failed backend delete', e); }
       }
       return true;
@@ -298,12 +307,15 @@ export class ActivityTracker {
       shell.beep();
 
       let downloadURL = '';
-      if (this.isBackendConfigured()) {
-        const formData = new FormData();
-        formData.append('file', new Blob([img], { type: 'image/png' }), filename);
-        // Note: You would typically upload the file to your backend's storage endpoint here and get a URL back.
-        // For now, we will just use the local URL.
-        downloadURL = localUrl;
+      if (this.token) {
+        try {
+          const uploader = uploadActions(api);
+          const { url } = await uploader.uploadImage(img, filename);
+          downloadURL = url;
+        } catch (e) {
+          console.error('Tracker: Failed to upload image to backend:', e);
+          downloadURL = localUrl;
+        }
       }
 
       const focusScore = calculateFocusScore(this.keystrokes, this.mouseMoves, 10);
@@ -325,22 +337,21 @@ export class ActivityTracker {
         minuteBreakdown: [...this.minuteStats] // Include per-minute stats
       };
 
-      let firebaseId = '';
-      if (this.isBackendConfigured()) {
+      let backendId = '';
+      if (this.token) {
         try {
-          // You'll need to handle auth token if the main process sends this, 
-          // or just assume the backend accepts it.
-          const res = await axios.post('http://localhost:8000/api/activity', {
+          const activity = activityActions(api);
+          const savedLog = await activity.saveLog({
             ...logData,
             activities: this.activityBatches.slice(-20)
           });
-          firebaseId = res.data?.id || '';
+          backendId = String(savedLog.id);
         } catch(e) {
           console.error('Failed to post activity to backend', e);
         }
       }
 
-      const logWithId = { ...logData, id: firebaseId || `local-${timestamp}` };
+      const logWithId = { ...logData, id: backendId || `local-${timestamp}` };
       this.saveLogLocally(logWithId);
 
       // Notify with localUrl for speed

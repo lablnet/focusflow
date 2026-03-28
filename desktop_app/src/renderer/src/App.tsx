@@ -18,8 +18,15 @@ import { useBlocklist } from './hooks/useBlocklist'
 
 function App() {
   const isBlockerMode = window.location.hash === '#blocker=true'
-  const { user, loading, logout, isAuthenticated } = useAuth()
+  const { user, loading, logout, isAuthenticated, token } = useAuth()
   const notifyTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Sync token to Electron Main Process for activity tracking
+  useEffect(() => {
+    if (window.api?.tracker?.setToken) {
+      window.api.tracker.setToken(token || '')
+    }
+  }, [token])
 
   const [activeTab, setActiveTab] = useState<string>('dashboard')
   const [memo, setMemo] = useState('Working on general tasks')
