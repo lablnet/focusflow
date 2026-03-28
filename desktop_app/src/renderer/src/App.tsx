@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import { useAuth } from './context/AuthContext'
+import { useAuth } from '@focusflow/hooks'
 
 import Login from './components/Login'
 import AppLayout from './components/AppLayout'
@@ -18,7 +18,7 @@ import { useBlocklist } from './hooks/useBlocklist'
 
 function App() {
   const isBlockerMode = window.location.hash === '#blocker=true'
-  const { user, loading, logout } = useAuth()
+  const { user, loading, logout, isAuthenticated } = useAuth()
   const notifyTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const [activeTab, setActiveTab] = useState<string>('dashboard')
@@ -85,7 +85,7 @@ function App() {
       setIsActive(false)
     } else {
       if (!user) return
-      await window.api.tracker.start({ userId: user.uid })
+      await window.api.tracker.start({ userId: String(user.id) })
       setIsActive(true)
     }
   }
@@ -100,7 +100,7 @@ function App() {
   }
 
   // Auth check
-  if (!user && !isBlockerMode) return <Login />
+  if (!isAuthenticated && !isBlockerMode) return <Login />
 
   // Blocker overlay
   if (isBlockerMode) {

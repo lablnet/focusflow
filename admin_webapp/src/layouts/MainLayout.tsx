@@ -1,6 +1,6 @@
 import Sidebar from '../components/Sidebar';
 import { Bell, Search, User as UserIcon } from 'lucide-react';
-import { useUserStore } from '../store/userStore';
+import { useAuth } from '@focusflow/hooks';
 import { ThemeToggle } from '@focusflow/ui';
 
 interface MainLayoutProps {
@@ -8,7 +8,7 @@ interface MainLayoutProps {
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-    const user = useUserStore((state) => state.session?.user);
+    const { user } = useAuth();
 
     return (
         <div className="min-h-screen bg-background text-foreground transition-colors duration-300">

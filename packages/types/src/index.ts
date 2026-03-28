@@ -30,9 +30,13 @@ export interface ActivityLog {
     userName?: string;
 }
 
-export interface AuthState {
+export interface Session {
     user: User | null;
-    token: string | null;
+    access_token: string | null;
+    refresh_token: string | null;
+}
+
+export interface AuthState extends Session {
     isAuthenticated: boolean;
     loading: boolean;
 }

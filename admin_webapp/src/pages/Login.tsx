@@ -2,28 +2,25 @@ import { useState } from 'react';
 import { Card, Button, Input } from '@focusflow/ui';
 import { Shield, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { authService } from '../services/authService';
+import { useAuth } from '@focusflow/hooks';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
+    const { login, loading } = useAuth();
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
         setError('');
 
         try {
-            await authService.login(email, password);
+            await login(email, password);
             navigate('/');
         } catch (err: any) {
             setError(err.message || 'Invalid credentials');
-        } finally {
-            setLoading(false);
         }
     };
 

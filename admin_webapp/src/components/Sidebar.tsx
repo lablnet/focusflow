@@ -1,13 +1,13 @@
 import { LayoutDashboard, Users, Clock, Settings, LogOut, Shield } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useUserStore } from '../store/userStore';
+import { useAuth } from '@focusflow/hooks';
 
 const Sidebar = () => {
-    const logout = useUserStore((state) => state.logout);
+    const { logout } = useAuth();
     const navigate = useNavigate();
 
-    const handleLogout = () => {
-        logout();
+    const handleLogout = async () => {
+        await logout();
         navigate('/login');
     };
 

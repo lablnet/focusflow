@@ -1,0 +1,13 @@
+{
+    "name": "@focusflow/stores",
+    "version": "1.0.0",
+    "main": "src/index.ts",
+    "types": "src/index.ts",
+    "dependencies": {
+        "zustand": "^4.5.0",
+        "@focusflow/types": "workspace:*"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0"
+    }
+}

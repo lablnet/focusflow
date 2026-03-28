@@ -1,19 +1,15 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, Input, Button, SearchableSelect, DatePicker } from '@focusflow/ui';
 import { Search, Filter, Download, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useActivity } from '@focusflow/hooks';
 
 const TimeLogs = () => {
     const [search, setSearch] = useState('');
     const [selectedTeam, setSelectedTeam] = useState('All');
     const [selectedDate, setSelectedDate] = useState('');
-
-    const mockLogs = [
-        { id: 1, user: 'John Doe', team: 'Design', duration: '7h 20m', start: '09:00 AM', end: '04:20 PM', status: 'Completed', date: '2023-10-24' },
-        { id: 2, user: 'Alice Smith', team: 'Development', duration: '8h 05m', start: '08:30 AM', end: '04:35 PM', status: 'Completed', date: '2023-10-24' },
-        { id: 3, user: 'Bob Johnson', team: 'Marketing', duration: '4h 15m', start: '10:00 AM', end: '02:15 PM', status: 'In Progress', date: '2023-10-24' },
-        { id: 4, user: 'Sarah Wilson', team: 'Design', duration: '6h 45m', start: '09:15 AM', end: '04:00 PM', status: 'Completed', date: '2023-10-24' },
-    ];
+    const [logs, setLogs] = useState<any[]>([]);
+    const { getLogs, loading } = useActivity();
 
     const teamOptions = [
         { label: 'All Teams', value: 'All' },
@@ -22,14 +18,23 @@ const TimeLogs = () => {
         { label: 'Marketing', value: 'Marketing' },
     ];
 
-    const filteredLogs = useMemo(() => {
-        return mockLogs.filter(log => {
-            const matchesSearch = log.user.toLowerCase().includes(search.toLowerCase());
-            const matchesTeam = selectedTeam === 'All' || log.team === selectedTeam;
-            const matchesDate = !selectedDate || log.date === selectedDate;
-            return matchesSearch && matchesTeam && matchesDate;
-        });
-    }, [search, selectedTeam, selectedDate]);
+    useEffect(() => {
+        const fetchLogs = async () => {
+            try {
+                const data = await getLogs({
+                    team: selectedTeam !== 'All' ? selectedTeam : undefined,
+                    date: selectedDate || undefined,
+                    search: search || undefined
+                });
+                setLogs(data.logs || []);
+            } catch (err) {
+                console.error('Failed to fetch logs', err);
+            }
+        };
+        fetchLogs();
+    }, [getLogs, selectedTeam, selectedDate, search]);
+
+    const filteredLogs = logs; // Filtering is handled by API now
 
     const teamColor: Record<string, string> = {
         Design: 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20',

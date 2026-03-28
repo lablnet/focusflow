@@ -32,6 +32,10 @@
     "screenshot-desktop": "^1.15.3",
     "tailwind-merge": "^3.4.0",
     "uiohook-napi": "^1.5.4",
+    "zustand": "^5.0.11",
+    "@focusflow/api": "workspace:*",
+    "@focusflow/hooks": "workspace:*",
+    "@focusflow/stores": "workspace:*",
     "@focusflow/types": "workspace:*",
     "@focusflow/ui": "workspace:*"
   },

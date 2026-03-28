@@ -1,38 +1,25 @@
 import React, { useState } from 'react';
 import { LogIn, UserPlus, Mail, Lock, Loader2 } from 'lucide-react';
-import { signInWithGoogle, signInWithEmail, signUpWithEmail } from '../lib/firebase';
+import { useAuth } from '@focusflow/hooks';
 
 const Login: React.FC = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    try {
-      await signInWithGoogle();
-    } catch (error: any) {
-      console.error('Login Error:', error);
-      alert(`Login error: ${error.message} (Code: ${error.code})`);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { login, loading } = useAuth();
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     try {
       if (isSignUp) {
-        await signUpWithEmail(email, password);
+        // register not yet implemented in UI but hook has it
+        // await register(email, password);
+        alert('Registration not implemented yet');
       } else {
-        await signInWithEmail(email, password);
+        await login(email, password);
       }
     } catch (error: any) {
       alert(`Error: ${error.message}`);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -92,29 +79,6 @@ const Login: React.FC = () => {
           </button>
         </form>
 
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-border" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-4 text-muted-foreground font-medium tracking-wider">
-              Or continue with
-            </span>
-          </div>
-        </div>
-
-        <button
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 py-4 bg-secondary text-foreground font-bold rounded-xl hover:bg-secondary/80 transition-colors active:scale-95 shadow-lg border border-border"
-        >
-          <img
-            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-            alt="Google"
-            className="w-6 h-6"
-          />
-          Google
-        </button>
 
         <div className="text-center pt-2">
           <button

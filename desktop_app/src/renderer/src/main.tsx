@@ -5,7 +5,6 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
 
-import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeProvider'
 
 console.log('Renderer starting...');
@@ -18,9 +17,7 @@ window.onerror = (msg, url, line, col, error) => {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <App />
     </ThemeProvider>
   </StrictMode>
 )

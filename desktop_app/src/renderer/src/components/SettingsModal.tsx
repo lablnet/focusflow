@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Plus, Trash, Settings2 } from 'lucide-react';
 import { Modal, Input } from '@focusflow/ui';
-import type { User } from 'firebase/auth';
+import type { User } from '@focusflow/types';
 
 interface SettingsModalProps {
     open: boolean;
@@ -103,15 +103,11 @@ export default function SettingsModal({
                         User Profile
                     </label>
                     <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg border border-border">
-                        {user?.photoURL ? (
-                            <img src={user.photoURL} className="w-8 h-8 rounded-full shrink-0" alt="" />
-                        ) : (
-                            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold uppercase text-primary-foreground shrink-0">
-                                {user?.email?.[0]}
-                            </div>
-                        )}
+                        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold uppercase text-primary-foreground shrink-0">
+                            {user?.email?.[0]}
+                        </div>
                         <div className="overflow-hidden min-w-0">
-                            <p className="text-sm font-semibold truncate text-foreground">{user?.displayName || 'User'}</p>
+                            <p className="text-sm font-semibold truncate text-foreground">{user?.name || 'User'}</p>
                             <p className="text-[11px] text-muted-foreground truncate">{user?.email}</p>
                         </div>
                     </div>

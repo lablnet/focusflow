@@ -4,11 +4,10 @@ import Dashboard from './pages/Dashboard';
 import Logs from './pages/Logs';
 import Teams from './pages/Teams';
 import Login from './pages/Login';
-import { useUserStore } from './store/userStore';
+import { useAuthStore } from '@focusflow/stores';
 
 const App = () => {
-  const session = useUserStore((state) => state.session);
-  const isAuthenticated = !!session;
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return (
     <Router>
@@ -21,19 +20,19 @@ const App = () => {
         <Route
           path="/*"
           element={
-            // isAuthenticated ? (
-            <MainLayout>
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/teams" element={<Teams />} />
-                <Route path="/logs" element={<Logs />} />
-                <Route path="/settings" element={<div className="text-white p-8">Settings Coming Soon</div>} />
-                <Route path="*" element={<Navigate to="/" />} />
-              </Routes>
-            </MainLayout>
-            // ) : (
-            //   <Navigate to="/login" />
-            // )
+            isAuthenticated ? (
+              <MainLayout>
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/teams" element={<Teams />} />
+                  <Route path="/logs" element={<Logs />} />
+                  <Route path="/settings" element={<div className="text-white p-8">Settings Coming Soon</div>} />
+                  <Route path="*" element={<Navigate to="/" />} />
+                </Routes>
+              </MainLayout>
+            ) : (
+              <Navigate to="/login" />
+            )
           }
         />
       </Routes>
