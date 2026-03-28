@@ -1,6 +1,6 @@
 import type { AxiosInstance } from 'axios';
 import { ActivityLog } from '@focusflow/types';
-import { api } from './client';
+import { api } from './client.js';
 
 export const activityActions = (client: AxiosInstance = api) => ({
     getLogs: async (params?: Record<string, any>) => {
