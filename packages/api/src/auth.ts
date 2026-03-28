@@ -1,7 +1,8 @@
 import { AxiosInstance } from 'axios';
 import { User, Session } from '@focusflow/types';
+import { api } from './client';
 
-export const authActions = (client: AxiosInstance) => ({
+export const authActions = (client: AxiosInstance = api) => ({
     login: async (email: string, password: string): Promise<Session> => {
         const { data } = await client.post<{ accessToken: string; refreshToken: string; user: User }>('/auth/login', {
             email,

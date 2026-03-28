@@ -3,7 +3,20 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 // To be updated with real endpoint
 const BASE_URL = import.meta.env?.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
-export const createClient = (getToken: () => string | null): AxiosInstance => {
+// Helper to read token from Zustand storage
+const getToken = (): string | null => {
+    if (typeof localStorage === 'undefined') return null;
+    try {
+        const saved = localStorage.getItem('focusflow-auth-storage');
+        if (!saved) return null;
+        const parsed = JSON.parse(saved);
+        return parsed.state?.access_token || null;
+    } catch (e) {
+        return null;
+    }
+};
+
+export const createClient = (tokenGetter: () => string | null = getToken): AxiosInstance => {
     const client = axios.create({
         baseURL: BASE_URL,
         headers: {
@@ -12,7 +25,7 @@ export const createClient = (getToken: () => string | null): AxiosInstance => {
     });
 
     client.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-        const token = getToken();
+        const token = tokenGetter();
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -22,10 +35,5 @@ export const createClient = (getToken: () => string | null): AxiosInstance => {
     return client;
 };
 
-// Global default client if needed, though stores will usually provide their own instance with token getter
-export const api = axios.create({
-    baseURL: BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
+// Global default client that reads from localStorage via the persistent store
+export const api = createClient();
